@@ -56,6 +56,9 @@ def get_candidates(query_text, max_candidates):
             res_dict = get_search_results(
                 query_text, 'formatted_address,name', next_page_token)
             next_page_token = res_dict.get('next_page_token')
+            print(len(res_dict['results']))
+            if len(res_dict['results']) == 0:
+                print(res_dict)
             for candidate in res_dict['results']:
                 phone_number, website = get_details(
                     place_id=candidate['place_id'])
@@ -69,6 +72,11 @@ def get_candidates(query_text, max_candidates):
         except Exception:
             t = traceback.format_exc()
             print(t)
+            break
+        # print(first_flag, next_page_token, len(candidate_list), max_candidates)
+        import time
+        time.sleep(2)
+        print()
 
     return pd.DataFrame(candidate_list)
 
@@ -83,7 +91,8 @@ def make_clickable(link):
 
 def app():
     max_candidates = st.sidebar.number_input(
-        '最大件数', min_value=20, max_value=200)
+        '目安件数', min_value=20, max_value=200,
+        help='ここで設定した数値かつ20の倍数が取得されます')
 
     query_text = st.text_input('検索ワードを入力')
     query_text = query_text.replace('　', ',').replace(' ', ',')
