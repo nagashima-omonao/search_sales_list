@@ -1,11 +1,12 @@
+from dotenv import load_dotenv
 import requests
 import urllib
 import json
 import os
+import traceback
 import streamlit as st
 import pandas as pd
 pd.set_option('display.max_colwidth', None)
-from dotenv import load_dotenv
 load_dotenv()
 
 api_key = os.environ['API_KEY']
@@ -28,48 +29,47 @@ def get_details(place_id):
             res_dict['result'].get('website'))
 
 
-def generate_search_url(query_text, fields):
+def get_search_results(query_text, fields, next_page_token=''):
     query_dict = dict(
         query=query_text,
         language='ja',
         fields=fields,
         key=api_key,
     )
+    if next_page_token:
+        query_dict['pagetoken'] = next_page_token
     query_string = urllib.parse.urlencode(query_dict)
-    return base_url + query_string
+    url = base_url + query_string
+    response = requests.request("GET", url, headers={}, data={})
+    return json.loads(response.text)
 
 
 def get_candidates(query_text, max_candidates):
-    url = generate_search_url(query_text, 'formatted_address,name')
-    payload = {}
-    headers = {}
 
-    response = requests.request("GET", url, headers=headers, data=payload)
-
-    res_dict = json.loads(response.text)
-    json.dump(res_dict, open('res.json', 'w'))
-    # res_dict = json.load(open('res.json', 'r'))
-    print(res_dict.keys())
-    print(res_dict['next_page_token'])
-    print(res_dict['results'][0].keys())
-
+    first_flag = True
+    next_page_token = ''
     candidate_list = list()
-    for candidate in res_dict['results']:
-        print(candidate['name'])
-        print(candidate['formatted_address'])
+    while first_flag or (next_page_token and len(candidate_list) <= max_candidates):
+        first_flag = False
 
-        phone_number, website = get_details(place_id=candidate['place_id'])
-        print(phone_number)
-        print(website)
+        try:
+            res_dict = get_search_results(
+                query_text, 'formatted_address,name', next_page_token)
+            next_page_token = res_dict.get('next_page_token')
+            for candidate in res_dict['results']:
+                phone_number, website = get_details(
+                    place_id=candidate['place_id'])
+                cand_dict = dict(
+                    name=candidate['name'],
+                    address=candidate['formatted_address'],
+                    phone=phone_number,
+                    site_url=website,
+                )
+                candidate_list.append(cand_dict)
+        except Exception:
+            t = traceback.format_exc()
+            print(t)
 
-        cand_dict = dict(
-            name=candidate['name'],
-            address=candidate['formatted_address'],
-            phone=phone_number,
-            site_url=website,
-        )
-        candidate_list.append(cand_dict)
-        print()
     return pd.DataFrame(candidate_list)
 
 
