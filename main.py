@@ -8,7 +8,7 @@ pd.set_option('display.max_colwidth', None)
 from dotenv import load_dotenv
 load_dotenv()
 
-api_key = os.env['API_KEY']
+api_key = os.environ['API_KEY']
 base_url = 'https://maps.googleapis.com/maps/api/place/textsearch/json?'
 place_url = 'https://maps.googleapis.com/maps/api/place/details/json?'
 
