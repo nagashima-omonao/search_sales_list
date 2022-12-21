@@ -56,7 +56,7 @@ def get_candidates(query_text, max_candidates):
             res_dict = get_search_results(
                 query_text, 'formatted_address,name', next_page_token)
             next_page_token = res_dict.get('next_page_token')
-            print(len(res_dict['results']))
+            # print(len(res_dict['results']))
             if len(res_dict['results']) == 0:
                 print(res_dict)
             for candidate in res_dict['results']:
