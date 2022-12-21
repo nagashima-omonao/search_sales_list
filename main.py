@@ -1,11 +1,14 @@
 import requests
 import urllib
 import json
+import os
 import streamlit as st
 import pandas as pd
-pd.set_option('display.max_colwidth', -1)
+pd.set_option('display.max_colwidth', None)
+from dotenv import load_dotenv
+load_dotenv()
 
-api_key = 'AIzaSyAwEpd1hf7X45NlNDf3gRcclbZ5417ijGk'
+api_key = os.getenv('AIzaSyAwEpd1hf7X45NlNDf3gRcclbZ5417ijGk')
 base_url = 'https://maps.googleapis.com/maps/api/place/textsearch/json?'
 place_url = 'https://maps.googleapis.com/maps/api/place/details/json?'
 
@@ -69,6 +72,7 @@ def get_candidates(query_text, max_candidates):
         print()
     return pd.DataFrame(candidate_list)
 
+
 def make_clickable(link):
     # target _blank to open new window
     # extract clickable text to display for your link
@@ -76,8 +80,10 @@ def make_clickable(link):
 
 # link is the column with hyperlinks
 
+
 def app():
-    max_candidates = st.sidebar.number_input('最大件数', min_value=20, max_value=200)
+    max_candidates = st.sidebar.number_input(
+        '最大件数', min_value=20, max_value=200)
 
     query_text = st.text_input('検索ワードを入力')
     query_text = query_text.replace('　', ',').replace(' ', ',')
