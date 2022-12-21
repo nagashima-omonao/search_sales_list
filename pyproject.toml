@@ -4,7 +4,7 @@ version = "0.1.0"
 description = ""
 authors = ["nagashima-omonao <nagashima.omonao@gmail.com>"]
 readme = "README.md"
-packages = [{include = "sales_list"}]
+packages = []
 
 [tool.poetry.dependencies]
 python = "^3.10"
