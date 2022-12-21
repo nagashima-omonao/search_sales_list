@@ -5,6 +5,7 @@ import json
 import os
 import traceback
 import streamlit as st
+st.set_page_config(layout="wide")
 import pandas as pd
 pd.set_option('display.max_colwidth', None)
 load_dotenv()
